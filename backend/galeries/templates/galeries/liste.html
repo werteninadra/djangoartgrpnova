@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestion des Galeries</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h2 { color: #333; }
+        form { margin-bottom: 20px; }
+        ul { list-style-type: none; padding-left: 0; }
+        li { margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px; }
+        .active { color: green; font-weight: bold; }
+        .actions a { margin-right: 10px; }
+        label { display: block; margin-top: 10px; }
+        input, textarea { width: 100%; padding: 5px; margin-top: 5px; }
+        button { margin-top: 10px; padding: 5px 10px; }
+    </style>
+</head>
+<body>
+
+<h1>Gestion des Galeries</h1>
+
+<!-- RECHERCHE -->
+<form method="get" action="">
+    <input type="text" name="q" placeholder="Rechercher..." value="{{ query }}">
+    <button type="submit">Rechercher</button>
+</form>
+
+<!-- FORMULAIRE AJOUT / MODIFICATION -->
+{% if form %}
+<h2>{{ title }}</h2>
+<form method="post">
+    {% csrf_token %}
+    
+    <!-- Champ nom -->
+    <label for="id_nom">Nom :</label>
+    {{ form.nom }}
+    
+    <!-- Champ description -->
+    <label for="id_description">Description :</label>
+    {{ form.description }}
+    
+    <!-- Champ adresse -->
+    <label for="id_adresse">Adresse :</label>
+    {{ form.adresse }}
+    
+    <button type="submit">Enregistrer</button>
+</form>
+<a href="{% url 'liste_galeries' %}">Annuler / Retour à la liste</a>
+<hr>
+{% endif %}
+
+<!-- LISTE DES GALERIES -->
+<h2>Liste des Galeries</h2>
+<a href="{% url 'ajouter_galerie' %}">Ajouter une nouvelle galerie</a>
+<ul>
+    {% for galerie in galeries %}
+        <li>
+            <strong>{{ galerie.nom }}</strong><br>
+            <p>{{ galerie.description }}</p>
+            <p>Adresse : {{ galerie.adresse }}</p>
+            <p>Collections :</p>
+            <ul>
+                {% for collection in galerie.collections.all %}
+                    <li>{{ collection.nom }} {% if collection.est_active %}<span class="active">(active)</span>{% endif %}</li>
+                {% empty %}
+                    <li>Aucune collection</li>
+                {% endfor %}
+            </ul>
+            <div class="actions">
+                <a href="{% url 'modifier_galerie' galerie.pk %}">Modifier</a>
+                <a href="{% url 'supprimer_galerie' galerie.pk %}">Supprimer</a>
+            </div>
+        </li>
+    {% empty %}
+        <li>Aucune galerie disponible.</li>
+    {% endfor %}
+</ul>
+
+<!-- CONFIRMATION SUPPRESSION -->
+{% if galerie_to_delete %}
+<hr>
+<h2>Supprimer Galerie</h2>
+<p>Voulez-vous vraiment supprimer "{{ galerie_to_delete.nom }}" ?</p>
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Confirmer</button>
+</form>
+<a href="{% url 'liste_galeries' %}">Annuler</a>
+{% endif %}
+
+</body>
+</html>

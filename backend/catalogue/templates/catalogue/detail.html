@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h1>{{ oeuvre.titre }}</h1>
+            {% if oeuvre.image %}
+                <img src="{{ oeuvre.image.url }}" alt="{{ oeuvre.titre }}" class="img-fluid mb-3" style="max-height: 600px;">
+            {% endif %}
+            <p class="lead">{{ oeuvre.description }}</p>
+
+            <!-- Enhanced artwork information -->
+            <div class="row mb-4">
+                <div class="col-sm-6">
+                    <strong>Style:</strong> {{ oeuvre.style|default:"Non spécifié" }}
+                </div>
+                <div class="col-sm-6">
+                    <strong>Thème:</strong> {{ oeuvre.theme|default:"Non spécifié" }}
+                </div>
+                <div class="col-sm-6">
+                    <strong>Couleur principale:</strong> {{ oeuvre.couleur_principale|default:"Non spécifié" }}
+                </div>
+                <div class="col-sm-6">
+                    <strong>Technique:</strong> {{ oeuvre.technique|default:"Non spécifié" }}
+                </div>
+                {% if oeuvre.dimensions %}
+                <div class="col-sm-6">
+                    <strong>Dimensions:</strong> {{ oeuvre.dimensions }}
+                </div>
+                {% endif %}
+                {% if oeuvre.materials %}
+                <div class="col-sm-6">
+                    <strong>Matériaux:</strong> {{ oeuvre.materials }}
+                </div>
+                {% endif %}
+                {% if oeuvre.year_created %}
+                <div class="col-sm-6">
+                    <strong>Année de création:</strong> {{ oeuvre.year_created }}
+                </div>
+                {% endif %}
+                {% if oeuvre.location %}
+                <div class="col-sm-6">
+                    <strong>Lieu:</strong> {{ oeuvre.location }}
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Tags -->
+            <div class="mt-3">
+                <strong>Tags:</strong>
+                {% for tag in oeuvre.tags.all %}
+                    <span class="badge bg-secondary me-1">{{ tag.nom }}</span>
+                {% empty %}
+                    Aucun tag
+                {% endfor %}
+            </div>
+
+            <!-- Artist and creation info -->
+            {% if oeuvre.artiste %}
+                <p class="mt-3"><strong>Artiste:</strong> {{ oeuvre.artiste.username }}</p>
+            {% endif %}
+            <p class="text-muted">Créée le {{ oeuvre.date_creation|date:"d/m/Y" }}</p>
+            {% if oeuvre.generated_by_ai %}
+                <span class="badge bg-info">Générée par IA</span>
+            {% endif %}
+
+            <!-- Metadata section -->
+            {% if metadata %}
+            <div class="mt-4">
+                <h3>Métadonnées supplémentaires</h3>
+                <div class="card">
+                    <div class="card-body">
+                        {% if metadata.provenance %}
+                        <p><strong>Provenance:</strong> {{ metadata.provenance }}</p>
+                        {% endif %}
+                        {% if metadata.conservation_status %}
+                        <p><strong>État de conservation:</strong> {{ metadata.conservation_status }}</p>
+                        {% endif %}
+                        {% if metadata.exhibition_history %}
+                        <p><strong>Historique d'exposition:</strong> {{ metadata.exhibition_history }}</p>
+                        {% endif %}
+                        {% if metadata.value_estimate %}
+                        <p><strong>Estimation de valeur:</strong> {{ metadata.value_estimate }} USD</p>
+                        {% endif %}
+                        {% if metadata.copyright_info %}
+                        <p><strong>Informations de copyright:</strong> {{ metadata.copyright_info }}</p>
+                        {% endif %}
+                        {% if metadata.additional_notes %}
+                        <p><strong>Notes supplémentaires:</strong> {{ metadata.additional_notes }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Actions</h5>
+                    {% if user.is_authenticated %}
+                        <button id="favorite-btn" class="btn btn-outline-danger mb-2" data-oeuvre-id="{{ oeuvre.id }}">
+                            <i class="fas fa-heart{% if not is_favorited %} far{% endif %}"></i>
+                            {% if is_favorited %}Retirer des favoris{% else %}Ajouter aux favoris{% endif %}
+                        </button>
+                        <a href="{% url 'generer_oeuvre' %}" class="btn btn-primary mb-2">Générer une nouvelle œuvre</a>
+                        <a href="{% url 'profile' %}" class="btn btn-outline-primary mb-2">Mon profil</a>
+                        <a href="{% url 'advanced_search' %}" class="btn btn-outline-secondary">Recherche avancée</a>
+                    {% else %}
+                        <p>Connectez-vous pour générer des œuvres personnalisées.</p>
+                        <a href="{% url 'login' %}" class="btn btn-primary">Se connecter</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Similar artworks -->
+            {% if similar_oeuvres %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Œuvres similaires</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for similar in similar_oeuvres %}
+                        <div class="col-6 mb-2">
+                            <a href="{% url 'detail_oeuvre' similar.pk %}" class="text-decoration-none">
+                                {% if similar.image %}
+                                <img src="{{ similar.image.url }}" alt="{{ similar.titre }}" class="img-fluid mb-1" style="height: 80px; object-fit: cover;">
+                                {% endif %}
+                                <small class="d-block">{{ similar.titre|truncatechars:20 }}</small>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if user.is_authenticated %}
+<script>
+document.getElementById('favorite-btn').addEventListener('click', function() {
+    const oeuvreId = this.dataset.oeuvreId;
+    const btn = this;
+    const icon = btn.querySelector('i');
+
+    fetch(`/catalogue/api/toggle-favorite/${oeuvreId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.favorited) {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            btn.innerHTML = '<i class="fas fa-heart"></i> Retirer des favoris';
+        } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            btn.innerHTML = '<i class="far fa-heart"></i> Ajouter aux favoris';
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+</script>
+{% endif %}
+{% endblock %}

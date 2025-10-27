@@ -1,0 +1,14 @@
+<h1>Liste des expositions</h1>
+<ul>
+  {% for expo in expositions %}
+    <li>
+      <strong>{{ expo.titre }}</strong> ({{ expo.date_debut }} - {{ expo.date_fin }})<br>
+      {% if expo.image %}
+        <img src="{{ expo.image.url }}" alt="{{ expo.titre }}" width="200">
+      {% endif %}
+      <p>{{ expo.description }}</p>
+    </li>
+  {% empty %}
+    <li>Aucune exposition disponible.</li>
+  {% endfor %}
+</ul>

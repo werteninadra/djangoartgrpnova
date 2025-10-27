@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Place Artwork in {{ room.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Place Artwork in {{ room.name }}</h1>
+    <p class="text-muted">Room in {{ room.gallery.name }}</p>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Artwork Placement</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ form.artwork.id_for_label }}" class="form-label">Select Artwork</label>
+                            {{ form.artwork }}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label for="{{ form.position_x.id_for_label }}" class="form-label">X Position</label>
+                                {{ form.position_x }}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.position_y.id_for_label }}" class="form-label">Y Position</label>
+                                {{ form.position_y }}
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ form.position_z.id_for_label }}" class="form-label">Z Position</label>
+                                {{ form.position_z }}
+                            </div>
+                        </div>
+                        <div class="form-text mb-3">Position coordinates for 3D placement</div>
+                        <button type="submit" class="btn btn-primary">Place Artwork</button>
+                        <a href="{% url 'manage_gallery' room.gallery.pk %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

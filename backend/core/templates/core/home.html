@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section bg-primary text-white py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">ArtGroupNova 🎨</h1>
+                <p class="lead mb-4">
+                    Découvrez une galerie interactive en ligne où l'art prend vie grâce à l'intelligence artificielle.
+                    Explorez des œuvres uniques générées procéduralement et laissez-vous immerger dans une expérience artistique personnalisée.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'liste_oeuvres' %}" class="btn btn-light btn-lg">Explorer le Catalogue</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'generer_oeuvre' %}" class="btn btn-outline-light btn-lg">Créer une Œuvre</a>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg">Se Connecter</a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <div style="font-size: 8rem;">🎨</div>
+                    <p class="mt-3">Art généré par IA • Expérience immersive • Collection unique</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row text-center mb-5">
+        <div class="col-md-4">
+            <div class="feature-card p-4">
+                <div class="mb-3" style="font-size: 3rem;">🤖</div>
+                <h3>Génération IA</h3>
+                <p>Chaque œuvre est créée de manière procédurale avec Python et Pillow,
+                produisant des compositions abstraites uniques et originales.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card p-4">
+                <div class="mb-3" style="font-size: 3rem;">🎯</div>
+                <h3>Expérience Personnalisée</h3>
+                <p>Découvrez des œuvres adaptées à vos goûts grâce à notre système
+                de recommandations basé sur vos préférences artistiques.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card p-4">
+                <div class="mb-3" style="font-size: 3rem;">🌟</div>
+                <h3>Collection Interactive</h3>
+                <p>Naviguez dans notre catalogue avec des filtres avancés,
+                explorez les galeries virtuelles et plongez dans l'art numérique.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">📚 Catalogue d'Œuvres</h3>
+                    <p class="card-text">Explorez notre collection d'œuvres d'art générées par IA.
+                    Utilisez nos filtres pour trouver exactement ce que vous cherchez.</p>
+                    <a href="{% url 'liste_oeuvres' %}" class="btn btn-primary">Voir le Catalogue</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title">🎨 Créer de l'Art</h3>
+                    <p class="card-text">Générez vos propres œuvres d'art uniques.
+                    Notre algorithme crée des compositions originales à chaque fois.</p>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'generer_oeuvre' %}" class="btn btn-success">Créer une Œuvre</a>
+                    {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-success">Se Connecter pour Créer</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <h2>Navigation</h2>
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <a href="/galeries/" class="btn btn-outline-primary btn-lg w-100 mb-3">🏛️ Galeries</a>
+            </div>
+            <div class="col-md-4">
+                <a href="/expositions/" class="btn btn-outline-primary btn-lg w-100 mb-3">🎭 Expositions</a>
+            </div>
+            <div class="col-md-4">
+                <a href="/catalogue/" class="btn btn-outline-primary btn-lg w-100 mb-3">📖 Catalogue</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 60vh;
+}
+
+.feature-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+</style>
+{% endblock %}

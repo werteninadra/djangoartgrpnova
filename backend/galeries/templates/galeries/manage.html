@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Gallery: {{ gallery.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Manage Gallery: {{ gallery.name }}</h1>
+    <p>{{ gallery.description }}</p>
+
+    <div class="row">
+        <div class="col-md-8">
+            <h2>Rooms</h2>
+            {% for room in rooms %}
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title">{{ room.name }}</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ room.description }}</p>
+                    <h6>Placed Artworks:</h6>
+                    <ul class="list-group list-group-flush">
+                        {% for placement in room.placements.all %}
+                        <li class="list-group-item">
+                            {{ placement.artwork.titre }}
+                            <small class="text-muted">
+                                Position: ({{ placement.position_x }}, {{ placement.position_y }}, {{ placement.position_z }})
+                            </small>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted">No artworks placed yet.</li>
+                        {% endfor %}
+                    </ul>
+                    <div class="mt-3">
+                        <a href="{% url 'place_artwork' room.pk %}" class="btn btn-primary btn-sm">Place Artwork</a>
+                        <a href="{% url 'auto_place_artworks' room.pk %}" class="btn btn-success btn-sm">Auto Place Artworks</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">No rooms in this gallery yet.</p>
+            {% endfor %}
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'add_room' gallery.pk %}" class="btn btn-primary w-100 mb-2">Add Room</a>
+                    <a href="{% url 'virtual_gallery' gallery.pk %}" class="btn btn-secondary w-100 mb-2">View Virtual Gallery</a>
+                    <a href="{% url 'liste_galeries' %}" class="btn btn-outline-secondary w-100">Back to Galleries</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

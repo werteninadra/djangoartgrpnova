@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Virtual Exhibitions{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Virtual Exhibitions</h1>
+                {% if user.role in 'curator,admin' %}
+                <a href="{% url 'virtual_exhibitions:create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create Exhibition
+                </a>
+                {% endif %}
+            </div>
+
+            {% if exhibitions %}
+                <div class="row">
+                    {% for exhibition in exhibitions %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ exhibition.title }}</h5>
+                                <p class="card-text">{{ exhibition.description|truncatechars:150 }}</p>
+                                <p class="text-muted small">
+                                    Curated by {{ exhibition.curator.get_full_name|default:exhibition.curator.username }}
+                                </p>
+                                <p class="text-muted small">
+                                    {{ exhibition.artworks.count }} artworks
+                                </p>
+                            </div>
+                            <div class="card-footer">
+                                <a href="{% url 'virtual_exhibitions:detail' exhibition.uuid %}" class="btn btn-outline-primary btn-sm">
+                                    View Exhibition
+                                </a>
+                                {% if user == exhibition.curator or user.role == 'admin' %}
+                                <a href="{% url 'virtual_exhibitions:manage_exhibition' exhibition.uuid %}" class="btn btn-outline-secondary btn-sm">
+                                    Manage
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-palette fa-3x text-muted mb-3"></i>
+                    <h3>No Virtual Exhibitions Yet</h3>
+                    <p class="text-muted">Be the first to create a virtual exhibition!</p>
+                    {% if user.role in 'curator,admin' %}
+                    <a href="{% url 'virtual_exhibitions:create' %}" class="btn btn-primary">
+                        Create Your First Exhibition
+                    </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

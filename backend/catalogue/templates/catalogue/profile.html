@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Mon Profil Artistique</h1>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Préférences</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ form.preferences.id_for_label }}" class="form-label">
+                                Mes préférences artistiques
+                            </label>
+                            {{ form.preferences }}
+                            <div class="form-text">
+                                Décrivez vos styles, thèmes et couleurs préférés pour personnaliser vos recommandations.
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Favorite Artworks -->
+            {% if favorite_oeuvres %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3><i class="fas fa-heart text-danger"></i> Mes Œuvres Favorites</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for oeuvre in favorite_oeuvres %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                {% if oeuvre.image %}
+                                <img src="{{ oeuvre.image.url }}" class="card-img-top" alt="{{ oeuvre.titre }}" style="height: 150px; object-fit: cover;">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ oeuvre.titre }}</h6>
+                                    <p class="card-text small">{{ oeuvre.style }} - {{ oeuvre.theme }}</p>
+                                    <div class="mb-2">
+                                        {% if oeuvre.technique %}<span class="badge bg-info">{{ oeuvre.technique }}</span>{% endif %}
+                                    </div>
+                                    <a href="{% url 'detail_oeuvre' oeuvre.pk %}" class="btn btn-sm btn-outline-primary">Voir</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Recently Viewed Artworks -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Œuvres Consultées Récemment</h3>
+                </div>
+                <div class="card-body">
+                    {% if recently_viewed %}
+                    <div class="row">
+                        {% for oeuvre in recently_viewed %}
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                {% if oeuvre.image %}
+                                <img src="{{ oeuvre.image.url }}" class="card-img-top" alt="{{ oeuvre.titre }}" style="height: 150px; object-fit: cover;">
+                                {% endif %}
+                                <div class="card-body">
+                                    <h6 class="card-title">{{ oeuvre.titre }}</h6>
+                                    <p class="card-text small">{{ oeuvre.style }} - {{ oeuvre.theme }}</p>
+                                    <div class="mb-2">
+                                        {% if oeuvre.technique %}<span class="badge bg-info">{{ oeuvre.technique }}</span>{% endif %}
+                                    </div>
+                                    <a href="{% url 'detail_oeuvre' oeuvre.pk %}" class="btn btn-sm btn-outline-primary">Voir</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">Vous n'avez pas encore consulté d'œuvres.</p>
+                    <a href="{% url 'liste_oeuvres' %}" class="btn btn-primary">Explorer le Catalogue</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Search History -->
+            {% if search_history %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3>Historique de Recherche</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for search_term in search_history %}
+                        <a href="{% url 'liste_oeuvres' %}?q={{ search_term|urlencode }}" class="btn btn-outline-secondary btn-sm">
+                            {{ search_term }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recommandations Personnalisées</h3>
+                </div>
+                <div class="card-body">
+                    {% if recommendations %}
+                    <p class="text-muted mb-3">Basé sur vos préférences et œuvres consultées :</p>
+                    {% for oeuvre in recommendations %}
+                    <div class="mb-3 p-2 border rounded">
+                        <h6>{{ oeuvre.titre }}</h6>
+                        <p class="small mb-1">{{ oeuvre.style }} - {{ oeuvre.theme }}</p>
+                        {% if oeuvre.technique %}
+                        <small class="text-muted">{{ oeuvre.technique }}</small>
+                        {% endif %}
+                        <a href="{% url 'detail_oeuvre' oeuvre.pk %}" class="btn btn-sm btn-primary">Découvrir</a>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p class="text-muted">Consultez plus d'œuvres pour recevoir des recommandations personnalisées.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mt-3">
+                <div class="card-body text-center">
+                    <h5>Actions</h5>
+                    <a href="{% url 'generer_oeuvre' %}" class="btn btn-success mb-2">🎨 Créer une Œuvre</a>
+                    <a href="{% url 'advanced_search' %}" class="btn btn-info mb-2">🔍 Recherche Avancée</a>
+                    <a href="{% url 'liste_oeuvres' %}" class="btn btn-outline-primary">Explorer le Catalogue</a>
+                </div>
+            </div>
+
+            <!-- User Statistics -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5>Statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-primary">{{ favorite_oeuvres|length }}</h4>
+                            <small class="text-muted">Favoris</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success">{{ recently_viewed|length }}</h4>
+                            <small class="text-muted">Consultés</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

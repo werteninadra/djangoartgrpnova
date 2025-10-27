@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Recherche Avancée{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Recherche Avancée d'Œuvres</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="get" action="{% url 'liste_oeuvres' %}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="q" class="form-label">Recherche générale</label>
+                            <input type="text" class="form-control" id="q" name="q" value="{{ query }}" placeholder="Titre, description, lieu...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="style" class="form-label">Style</label>
+                            <input type="text" class="form-control" id="style" name="style" value="{{ style }}" placeholder="Abstract, Géométrique...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="theme" class="form-label">Thème</label>
+                            <input type="text" class="form-control" id="theme" name="theme" value="{{ theme }}" placeholder="Nature, Urbain...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="technique" class="form-label">Technique</label>
+                            <input type="text" class="form-control" id="technique" name="technique" value="{{ technique }}" placeholder="Peinture, Sculpture...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="material" class="form-label">Matériau</label>
+                            <input type="text" class="form-control" id="material" name="material" value="{{ material }}" placeholder="Huile sur toile...">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="year_from" class="form-label">Année (de)</label>
+                            <input type="number" class="form-control" id="year_from" name="year_from" value="{{ year_from }}" placeholder="1900">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="mb-3">
+                            <label for="year_to" class="form-label">Année (à)</label>
+                            <input type="number" class="form-control" id="year_to" name="year_to" value="{{ year_to }}" placeholder="2024">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="tag" class="form-label">Tag</label>
+                            <input type="text" class="form-control" id="tag" name="tag" value="{{ tag }}" placeholder="art, généré...">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="sort" class="form-label">Trier par</label>
+                            <select class="form-control" id="sort" name="sort">
+                                <option value="date_creation" {% if sort_by == 'date_creation' %}selected{% endif %}>Date de création</option>
+                                <option value="year_created" {% if sort_by == 'year_created' %}selected{% endif %}>Année créée</option>
+                                <option value="titre" {% if sort_by == 'titre' %}selected{% endif %}>Titre</option>
+                                <option value="style" {% if sort_by == 'style' %}selected{% endif %}>Style</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label for="order" class="form-label">Ordre</label>
+                            <select class="form-control" id="order" name="order">
+                                <option value="desc" {% if order == 'desc' %}selected{% endif %}>Décroissant</option>
+                                <option value="asc" {% if order == 'asc' %}selected{% endif %}>Croissant</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Rechercher
+                    </button>
+                    <a href="{% url 'liste_oeuvres' %}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Effacer les filtres
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if oeuvres %}
+    <div class="mt-4">
+        <h3>Résultats ({{ oeuvres|length }})</h3>
+        <div class="row">
+            {% for oeuvre in oeuvres %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if oeuvre.image %}
+                    <img src="{{ oeuvre.image.url }}" class="card-img-top" alt="{{ oeuvre.titre }}" style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ oeuvre.titre }}</h5>
+                        <p class="card-text">{{ oeuvre.description|truncatechars:100 }}</p>
+                        <div class="mb-2">
+                            {% if oeuvre.style %}<span class="badge bg-primary">{{ oeuvre.style }}</span>{% endif %}
+                            {% if oeuvre.theme %}<span class="badge bg-secondary">{{ oeuvre.theme }}</span>{% endif %}
+                            {% if oeuvre.technique %}<span class="badge bg-info">{{ oeuvre.technique }}</span>{% endif %}
+                        </div>
+                        <a href="{% url 'detail_oeuvre' oeuvre.pk %}" class="btn btn-outline-primary">Voir détails</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

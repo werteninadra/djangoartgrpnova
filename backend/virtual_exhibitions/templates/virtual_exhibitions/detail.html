@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ exhibition.title }} - Virtual Exhibition{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'virtual_exhibitions:list' %}">Virtual Exhibitions</a></li>
+                    <li class="breadcrumb-item active">{{ exhibition.title }}</li>
+                </ol>
+            </nav>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h1 class="card-title">{{ exhibition.title }}</h1>
+                            <p class="card-text">{{ exhibition.description }}</p>
+                            <p class="text-muted">
+                                Curated by {{ exhibition.curator.get_full_name|default:exhibition.curator.username }}
+                            </p>
+                        </div>
+                        {% if can_manage %}
+                        <div>
+                            <a href="{% url 'virtual_exhibitions:manage_exhibition' exhibition.uuid %}" class="btn btn-outline-primary">
+                                <i class="fas fa-edit"></i> Manage Exhibition
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {% if artworks %}
+                <!-- Virtual Tour Interface -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Virtual Tour</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="virtual-tour">
+                            <!-- Current Artwork Display -->
+                            <div id="current-artwork" class="text-center mb-4">
+                                {% if current_artwork %}
+                                <div class="artwork-display">
+                                    {% if current_artwork.oeuvre.image %}
+                                    <img src="{{ current_artwork.oeuvre.image.url }}" alt="{{ current_artwork.oeuvre.titre }}"
+                                         class="img-fluid mb-3" style="max-height: 500px;">
+                                    {% endif %}
+                                    <h3>{{ current_artwork.oeuvre.titre }}</h3>
+                                    <p class="text-muted">{{ current_artwork.oeuvre.description }}</p>
+                                    {% if current_artwork.description %}
+                                    <div class="alert alert-info">
+                                        <strong>Curator's Note:</strong> {{ current_artwork.description }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% else %}
+                                <div class="text-center py-5">
+                                    <i class="fas fa-play-circle fa-3x text-muted mb-3"></i>
+                                    <h4>Ready to Start Your Tour?</h4>
+                                    <p>Click "Start Tour" to begin exploring the exhibition.</p>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Tour Controls -->
+                            <div class="tour-controls text-center">
+                                <button id="start-tour-btn" class="btn btn-primary me-2" {% if session.current_artwork_index > 0 %}style="display:none;"{% endif %}>
+                                    <i class="fas fa-play"></i> Start Tour
+                                </button>
+                                <button id="prev-artwork-btn" class="btn btn-outline-secondary me-2" {% if session.current_artwork_index == 0 %}disabled{% endif %}>
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </button>
+                                <button id="next-artwork-btn" class="btn btn-primary me-2" {% if session.completed %}disabled{% endif %}>
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </button>
+                                <button id="restart-tour-btn" class="btn btn-outline-warning">
+                                    <i class="fas fa-redo"></i> Restart Tour
+                                </button>
+                            </div>
+
+                            <!-- Progress Bar -->
+                            <div class="progress mt-4" style="height: 10px;">
+                                <div id="tour-progress" class="progress-bar" role="progressbar"
+                                     style="width: {{ session.current_artwork_index|add:1|mul:100|div:artworks.count }}%">
+                                </div>
+                            </div>
+                            <div class="text-center mt-2">
+                                <small class="text-muted">
+                                    Artwork {{ session.current_artwork_index|add:1 }} of {{ artworks.count }}
+                                    {% if session.completed %}
+                                    <span class="badge bg-success">Completed</span>
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exhibition Overview -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Exhibition Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% for artwork in artworks %}
+                            <div class="col-md-4 col-lg-3 mb-3">
+                                <div class="card h-100 artwork-thumbnail {% if forloop.counter0 == session.current_artwork_index %}border-primary{% endif %}"
+                                     data-index="{{ forloop.counter0 }}">
+                                    {% if artwork.oeuvre.image %}
+                                    <img src="{{ artwork.oeuvre.image.url }}" alt="{{ artwork.oeuvre.titre }}"
+                                         class="card-img-top" style="height: 150px; object-fit: cover;">
+                                    {% endif %}
+                                    <div class="card-body p-2">
+                                        <h6 class="card-title mb-1">{{ artwork.oeuvre.titre }}</h6>
+                                        <p class="card-text small text-muted mb-0">{{ artwork.oeuvre.description|truncatechars:50 }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-images fa-3x text-muted mb-3"></i>
+                    <h3>No Artworks in This Exhibition</h3>
+                    <p class="text-muted">The curator hasn't added any artworks yet.</p>
+                    {% if can_manage %}
+                    <a href="{% url 'virtual_exhibitions:manage_exhibition' exhibition.uuid %}" class="btn btn-primary">
+                        Add Artworks
+                    </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const exhibitionUuid = '{{ exhibition.uuid }}';
+    const totalArtworks = {{ artworks.count }};
+    let currentIndex = {{ session.current_artwork_index }};
+
+    // Tour control buttons
+    const startTourBtn = document.getElementById('start-tour-btn');
+    const prevBtn = document.getElementById('prev-artwork-btn');
+    const nextBtn = document.getElementById('next-artwork-btn');
+    const restartBtn = document.getElementById('restart-tour-btn');
+    const progressBar = document.getElementById('tour-progress');
+    const currentArtworkDiv = document.getElementById('current-artwork');
+
+    // Start tour
+    startTourBtn.addEventListener('click', function() {
+        fetch(`/virtual-exhibitions/${exhibitionUuid}/api/start-session/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.current_artwork) {
+                updateArtworkDisplay(data.current_artwork);
+                currentIndex = data.current_index;
+                updateControls();
+                updateProgress();
+                startTourBtn.style.display = 'none';
+            }
+        });
+    });
+
+    // Next artwork
+    nextBtn.addEventListener('click', function() {
+        fetch(`/virtual-exhibitions/${exhibitionUuid}/api/advance/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.current_artwork) {
+                updateArtworkDisplay(data.current_artwork);
+                currentIndex = data.current_index;
+                updateControls();
+                updateProgress();
+            }
+        });
+    });
+
+    // Previous artwork
+    prevBtn.addEventListener('click', function() {
+        const newIndex = Math.max(0, currentIndex - 1);
+        goToArtwork(newIndex);
+    });
+
+    // Restart tour
+    restartBtn.addEventListener('click', function() {
+        goToArtwork(0);
+    });
+
+    // Thumbnail clicks
+    document.querySelectorAll('.artwork-thumbnail').forEach(thumbnail => {
+        thumbnail.addEventListener('click', function() {
+            const index = parseInt(this.dataset.index);
+            goToArtwork(index);
+        });
+    });
+
+    function goToArtwork(index) {
+        fetch(`/virtual-exhibitions/${exhibitionUuid}/api/go-to/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `index=${index}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.current_artwork) {
+                updateArtworkDisplay(data.current_artwork);
+                currentIndex = data.current_index;
+                updateControls();
+                updateProgress();
+            }
+        });
+    }
+
+    function updateArtworkDisplay(artworkData) {
+        let html = '<div class="artwork-display">';
+        if (artworkData.image_url) {
+            html += `<img src="${artworkData.image_url}" alt="${artworkData.title}" class="img-fluid mb-3" style="max-height: 500px;">`;
+        }
+        html += `<h3>${artworkData.title}</h3>`;
+        if (artworkData.description) {
+            html += `<p class="text-muted">${artworkData.description}</p>`;
+        }
+        if (artworkData.curator_note) {
+            html += `<div class="alert alert-info"><strong>Curator's Note:</strong> ${artworkData.curator_note}</div>`;
+        }
+        html += '</div>';
+        currentArtworkDiv.innerHTML = html;
+    }
+
+    function updateControls() {
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex >= totalArtworks - 1;
+        startTourBtn.style.display = currentIndex > 0 ? 'none' : 'inline-block';
+    }
+
+    function updateProgress() {
+        const progress = ((currentIndex + 1) / totalArtworks) * 100;
+        progressBar.style.width = `${progress}%`;
+        document.querySelector('.text-muted small').innerHTML =
+            `Artwork ${currentIndex + 1} of ${totalArtworks}`;
+    }
+
+    // Initialize controls
+    updateControls();
+    updateProgress();
+});
+</script>
+{% endblock %}

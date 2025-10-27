@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Virtual Exhibition{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'virtual_exhibitions:list' %}">Virtual Exhibitions</a></li>
+                    <li class="breadcrumb-item active">Create Exhibition</li>
+                </ol>
+            </nav>
+
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Create New Virtual Exhibition</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Exhibition Title *</label>
+                            <input type="text" class="form-control" id="title" name="title"
+                                   placeholder="Enter exhibition title" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4"
+                                      placeholder="Describe your exhibition..."></textarea>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Create Exhibition
+                            </button>
+                            <a href="{% url 'virtual_exhibitions:list' %}" class="btn btn-outline-secondary">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

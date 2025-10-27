@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">🎨 Générateur d'Œuvres d'Art IA</h2>
+                </div>
+                <div class="card-body text-center">
+                    <p class="lead mb-4">
+                        Créez des œuvres d'art uniques générées par intelligence artificielle.
+                        Chaque œuvre est procéduralement générée avec des formes géométriques,
+                        des couleurs et des compositions aléatoirement choisies.
+                    </p>
+
+                    <div class="alert alert-info">
+                        <strong>Comment ça marche ?</strong><br>
+                        Notre algorithme utilise Python et la bibliothèque Pillow pour créer
+                        des compositions abstraites uniques. Chaque génération produit une œuvre
+                        originale avec des styles, thèmes et couleurs variés.
+                    </div>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-lg">
+                            🚀 Générer une Nouvelle Œuvre
+                        </button>
+                    </form>
+
+                    <div class="mt-4">
+                        <a href="{% url 'liste_oeuvres' %}" class="btn btn-outline-primary">
+                            ← Retour au Catalogue
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

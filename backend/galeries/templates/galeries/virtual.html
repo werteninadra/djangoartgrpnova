@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Virtual Gallery: {{ gallery.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Virtual Gallery: {{ gallery.name }}</h1>
+    <p>{{ gallery.description }}</p>
+
+    <div id="virtual-gallery" class="mt-4">
+        {% for room in rooms %}
+        <div class="room-section mb-5">
+            <h2>{{ room.name }}</h2>
+            <p>{{ room.description }}</p>
+
+            <div class="artwork-grid">
+                {% for placement in room.placements.all %}
+                <div class="artwork-item card" style="position: absolute; left: {{ placement.position_x }}px; top: {{ placement.position_y }}px;">
+                    <img src="{{ placement.artwork.image.url }}" class="card-img-top" alt="{{ placement.artwork.titre }}" style="max-width: 200px;">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ placement.artwork.titre }}</h5>
+                        <p class="card-text">{{ placement.artwork.description|truncatechars:100 }}</p>
+                        {% if placement.artwork.style %}
+                        <span class="badge bg-primary">{{ placement.artwork.style }}</span>
+                        {% endif %}
+                        {% if placement.artwork.couleur_principale %}
+                        <span class="badge bg-secondary">{{ placement.artwork.couleur_principale }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="alert alert-info">
+            <h4>No rooms configured</h4>
+            <p>This gallery doesn't have any rooms set up yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'liste_galeries' %}" class="btn btn-secondary">Back to Galleries</a>
+        {% if user.is_authenticated and (user.role == 'admin' or gallery.manager == user) %}
+        <a href="{% url 'manage_gallery' gallery.pk %}" class="btn btn-primary">Manage Gallery</a>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.artwork-grid {
+    position: relative;
+    height: 600px;
+    border: 1px solid #ddd;
+    background-color: #f8f9fa;
+    overflow: auto;
+}
+
+.artwork-item {
+    width: 220px;
+    margin: 10px;
+}
+</style>
+{% endblock %}

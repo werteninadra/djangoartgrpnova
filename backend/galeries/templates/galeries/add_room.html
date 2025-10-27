@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Room to {{ gallery.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Add Room to {{ gallery.name }}</h1>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Room Details</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">Room Name</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                        </div>
+                        <div class="mb-3">
+                            <label for="{{ form.layout.id_for_label }}" class="form-label">Layout (JSON)</label>
+                            {{ form.layout }}
+                            <div class="form-text">Optional JSON describing room layout</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Room</button>
+                        <a href="{% url 'manage_gallery' gallery.pk %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
