@@ -1,4 +1,4 @@
-This is the backend for the djangoartgrpnova project.
+//This is the backend for the djangoartgrpnova project.
 
 Project structure (important parts):
 
