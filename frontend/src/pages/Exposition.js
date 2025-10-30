@@ -154,7 +154,7 @@ const Exposition = () => {
           Virtual Expositions
         </Typography>
 
-        {/* Expositions Grid eee*/}
+        {/* Expositions Grid eeejjjjj*/}
         {loading ? (
           <Typography>Loading...</Typography>
         ) : (
