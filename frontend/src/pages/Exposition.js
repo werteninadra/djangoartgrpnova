@@ -95,7 +95,6 @@ const Exposition = () => {
     setOpen(false);
     setEditingExposition(null);
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -155,7 +154,7 @@ const Exposition = () => {
           Virtual Expositions
         </Typography>
 
-        {/* Expositions Grid */}
+        {/* Expositions Grid eee*/}
         {loading ? (
           <Typography>Loading...</Typography>
         ) : (
